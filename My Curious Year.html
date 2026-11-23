@@ -1,0 +1,560 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>The Curious Year</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Hanken+Grotesk:wght@400;500;600&family=Shantell+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: a sticker planner. Twelve doodled months across the top, a lime-gridded calendar sheet on the left with its legend underneath, today's page taped on the right, the shelf below. */
+:root{
+  --paper:#fcf3df;      /* warm cream */
+  --page:#fffaf0;       /* the page that is taped on */
+  --sheet:#fff8e6;      /* the calendar sheet */
+  --ink:#2f2618;        /* brown-black ink */
+  --soft:#7b6a50;       /* pencil */
+  --faint:#e8d9b4;      /* ruled lines */
+  --dots:#efe0bb;       /* dot grid */
+  --scrim:#2f261855;
+  --grid:#c7d433;       /* lime grid lines */
+  --orange:#f0961e;     /* hand-lettered title */
+  --num:#d99a2b;        /* tiny date numerals */
+  --wk:#e3a63e;         /* weekday labels */
+  --t-done:#cfe8dc;     /* mint: done day */
+  --t-slow:#fddfb5;     /* peach: slow day */
+  --pill-ink:#3a2e1d;
+  --p0:#fde98a;--p1:#fbb9bb;--p2:#86d9a8;--p3:#abc0f6;--p4:#cfb7f7;--p5:#fdcb90;--p6:#bfe4de;
+  --mark:#c0708e;      /* month accent, set per month in JS */
+  --hl:color-mix(in srgb,var(--mark) 30%,transparent);
+  --mark-ink:color-mix(in srgb,var(--mark) 55%,var(--ink));
+  --f-hand:"Gaegu","Shantell Sans","Comic Sans MS",ui-rounded,sans-serif;
+  --f-display:"Shantell Sans","Comic Sans MS",ui-rounded,"Trebuchet MS",sans-serif;
+  --f-body:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#1c1812;--page:#26211a;--sheet:#221d16;--ink:#f4ead6;--soft:#b9a98c;--faint:#4a3f2d;--dots:#2a241b;--scrim:#000000aa;
+  --grid:#8a9420;--orange:#f5a640;--num:#d2a14c;--wk:#c99a48;--t-done:#27493f;--t-slow:#54401f;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#1c1812;--page:#26211a;--sheet:#221d16;--ink:#f4ead6;--soft:#b9a98c;--faint:#4a3f2d;--dots:#2a241b;--scrim:#000000aa;
+  --grid:#8a9420;--orange:#f5a640;--num:#d2a14c;--wk:#c99a48;--t-done:#27493f;--t-slow:#54401f;color-scheme:dark}
+
+*{box-sizing:border-box}
+body{margin:0;background-color:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55;
+  background-image:radial-gradient(var(--dots) 1.1px,transparent 1.3px);background-size:24px 24px;
+  padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1160px;margin:0 auto}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--ink);outline-offset:3px;border-radius:4px}
+h1,h2,h3,h4,p,ul,ol{margin:0}
+ul,ol{padding:0;list-style:none}
+
+/* top */
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px 32px;flex-wrap:wrap}
+.top>div{min-width:0}
+.top h1{font-family:var(--f-display);font-weight:700;font-size:22px;letter-spacing:-.01em}
+.greet{color:var(--soft);font-size:14px;margin-top:2px}
+.why{font-family:var(--f-display);font-size:14px;color:var(--mark-ink);margin-top:6px;max-width:52ch}
+.linkish{background:none;border:0;padding:0;border-bottom:1.5px dashed var(--faint);color:var(--soft)}
+.linkish:hover{color:var(--ink);border-color:var(--ink)}
+.tools{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.find{border:0;border-bottom:1.5px dashed var(--faint);background:transparent;padding:4px 2px;width:150px;font-size:14px;border-radius:0}
+.find:focus{outline:none;border-color:var(--ink)}
+
+/* the year */
+.year{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:4px;margin:30px 0 40px}
+.mo{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 2px 7px;border:0;background:transparent;border-radius:16px 10px 15px 11px;color:var(--soft);font-size:12px}
+.mo svg{width:30px;height:30px;color:var(--c);opacity:.8}
+.mo i{display:block;width:70%;height:3px;border-radius:3px;background:var(--faint);overflow:hidden}
+.mo b{display:block;height:100%;background:var(--c)}
+.mo:hover{background:color-mix(in srgb,var(--c) 12%,transparent)}
+.mo.on{background:color-mix(in srgb,var(--c) 24%,transparent);color:var(--ink);font-weight:600}
+.mo.on svg{opacity:1}
+svg.d{fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+
+/* month head */
+.mh{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 24px;align-items:start}
+.mh .big{width:92px;height:92px;color:var(--mark);transform:rotate(-6deg);margin-top:8px}
+.month{font-family:var(--f-display);font-weight:700;font-size:clamp(44px,8vw,84px);line-height:1;letter-spacing:-.03em}
+.subject{font-family:var(--f-display);font-weight:600;font-size:clamp(19px,2.5vw,26px);line-height:1.5;margin-top:0;text-wrap:balance}
+.subject span{background:linear-gradient(transparent 58%,var(--hl) 58%);padding:0 4px;margin-left:-4px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.focus{color:var(--soft);max-width:58ch;margin-top:6px}
+.weeks{display:flex;flex-wrap:wrap;gap:4px 22px;margin-top:14px;font-size:13px;color:var(--soft)}
+.weeks b{font-family:var(--f-display);font-weight:600;color:var(--mark-ink);margin-right:5px}
+.tally{font-family:var(--f-display);font-size:14px;margin-top:14px;color:var(--soft)}
+
+/* spread */
+.spread{display:grid;grid-template-columns:minmax(0,1fr);gap:48px;margin-top:32px;align-items:start}
+@media(min-width:1000px){.spread{grid-template-columns:minmax(0,1fr) 380px;gap:44px}}
+.sheetcal{container-type:inline-size;background:var(--sheet);border:2px solid var(--grid);border-radius:20px;padding:18px 18px 16px;min-width:0}
+.sheethead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.mtitle{display:flex;align-items:center;justify-content:center;gap:12px;font-family:var(--f-hand);font-weight:700;font-size:clamp(30px,4.2vw,48px);line-height:1;color:var(--orange);letter-spacing:.02em;text-transform:uppercase;text-align:center;white-space:nowrap}
+.mtitle svg{width:clamp(24px,3.6vw,38px);height:auto;fill:var(--orange);flex:none}
+.ann{display:inline-flex;align-items:center;gap:6px;background:none;border:0;font-family:var(--f-hand);font-weight:700;font-size:16px;color:var(--orange);text-transform:uppercase;letter-spacing:.05em;padding:4px;flex:none}
+.ann svg{width:34px;height:26px;fill:none;stroke:var(--orange);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ann span{display:none}
+.ann:hover span{text-decoration:underline wavy;text-underline-offset:4px}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-top:2px solid var(--grid);border-left:2px solid var(--grid)}
+.cal>*{border:0;border-right:2px solid var(--grid);border-bottom:2px solid var(--grid);min-width:0}
+.wk{padding:7px 2px;text-align:center;font-family:var(--f-hand);font-style:italic;font-size:14px;color:var(--wk);text-transform:uppercase;letter-spacing:.06em}
+.wk .wf{display:none}
+@container (min-width:800px){.wk .wf{display:inline}.wk .ws{display:none}.ann span{display:inline}}
+.oth{padding:7px 9px;font-family:var(--f-hand);font-style:italic;font-size:14px;color:var(--num);opacity:.5;min-height:108px}
+.day{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-height:108px;padding:7px 8px 28px;text-align:left;background:transparent;border-radius:0;color:var(--ink)}
+.day:hover{background:color-mix(in srgb,var(--grid) 16%,transparent)}
+.day.done{background:var(--t-done)}
+.day.slow{background:var(--t-slow)}
+.day.sel{box-shadow:inset 0 0 0 3px var(--orange)}
+.dh{display:flex;justify-content:space-between;align-items:flex-start;width:100%}
+.day .n{font-family:var(--f-hand);font-style:italic;font-size:15px;line-height:1;color:var(--num);font-variant-numeric:tabular-nums}
+.day.today .n{color:var(--orange);font-weight:700}
+.st{width:20px;height:20px;flex:none}
+.day .pill{font-size:11px;padding:3px 8px;letter-spacing:.02em;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.day .t{font-size:11px;line-height:1.3;color:var(--soft);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.day .stk{position:absolute;left:8px;bottom:7px;width:20px;height:20px}
+.legend .stk{width:20px;height:20px}
+.day.pop .st{animation:pop .4s ease-out}
+@keyframes pop{from{transform:scale(.3)}60%{transform:scale(1.3)}to{transform:scale(1)}}
+.legend{display:flex;flex-wrap:wrap;gap:16px 38px;margin-top:20px;min-width:0}
+.legend>div{min-width:0}
+.legend h4{font-family:var(--f-hand);font-weight:700;font-size:16px;color:var(--orange);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.legend ul{display:grid;gap:6px}
+.legend li{display:flex;align-items:center;gap:8px;font-family:var(--f-hand);font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:var(--soft)}
+.legend li svg{width:20px;height:20px;flex:none}
+.legend .sw{width:20px;height:20px;border-radius:50%;flex:none;border:2px solid var(--grid)}
+.legend ul.types{display:flex;flex-wrap:wrap;gap:6px;max-width:330px}
+.key{margin-top:16px;font-size:12px;color:var(--soft)}
+
+/* today's page */
+.page{position:relative;background:var(--page);border:1px solid var(--faint);border-radius:6px 16px 8px 18px/16px 8px 18px 6px;padding:34px 26px 26px}
+.tape{position:absolute;top:-11px;left:50%;width:88px;height:24px;background:color-mix(in srgb,var(--mark) 38%,transparent);transform:translateX(-50%) rotate(-2.5deg)}
+.when{font-size:13px;color:var(--soft)}
+.topic{font-family:var(--f-display);font-weight:700;font-size:26px;line-height:1.18;letter-spacing:-.01em;margin-top:4px;text-wrap:balance}
+.kind{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin-top:12px;font-size:13px;color:var(--soft)}
+.pill{display:inline-block;font-family:var(--f-hand);font-weight:700;font-size:14px;letter-spacing:.05em;text-transform:uppercase;color:var(--pill-ink);background:var(--pc,var(--p0));border-radius:99px;padding:2px 13px;line-height:1.35}
+.h{font-family:var(--f-display);font-weight:600;font-size:13px;margin:24px 0 8px;color:var(--mark-ink)}
+.flow{display:grid;gap:11px}
+.flow li{display:grid;grid-template-columns:68px minmax(0,1fr);gap:10px}
+.flow time{font-size:12px;color:var(--soft);padding-top:2px;font-variant-numeric:tabular-nums}
+.flow strong{display:block;font-weight:600;font-size:14px}
+.flow span{display:block;font-size:13px;color:var(--soft);line-height:1.45}
+.fld{display:block;font-family:var(--f-display);font-weight:600;font-size:13px;margin:22px 0 4px;color:var(--mark-ink)}
+.line{width:100%;border:0;border-bottom:1.5px dashed var(--faint);background:transparent;padding:8px 2px;font-size:16px;border-radius:0}
+.line:focus{outline:none;border-color:var(--ink)}
+.ruled{width:100%;min-height:112px;border:0;background-color:transparent;padding:0 2px;font-size:16px;line-height:28px;resize:vertical;
+  background-image:repeating-linear-gradient(transparent 0 27px,var(--faint) 27px 28px);background-attachment:local;border-radius:0}
+.ruled:focus{outline:none}
+.feel{display:flex;gap:8px;flex-wrap:wrap}
+.feel button{font-family:var(--f-display);font-size:13px;background:none;border:1.5px dashed var(--faint);border-radius:99px;padding:5px 15px;color:var(--soft)}
+.feel button.on{background:var(--hl);border:1.5px solid var(--mark);color:var(--ink)}
+.donebtn{display:block;width:100%;margin-top:26px;padding:14px;border:2px solid var(--ink);border-radius:15px 10px 16px 11px;background:transparent;font-family:var(--f-display);font-weight:600;font-size:16px}
+.donebtn:hover{background:var(--hl)}
+.donebtn[aria-pressed="true"]{background:color-mix(in srgb,var(--mark) 40%,var(--page));border-color:var(--mark-ink)}
+.lines li{font-size:14px;padding:3px 0}
+.lines b{font-family:var(--f-display);font-weight:600;font-size:12px;color:var(--mark-ink);margin-right:8px}
+.quiet{color:var(--soft);font-size:13px}
+
+/* shelf */
+.shelf{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:44px 48px;margin-top:72px}
+.shelf>section{min-width:0}
+.shelf h3{font-family:var(--f-display);font-weight:700;font-size:18px;margin-bottom:12px}
+.shelf .book{margin-bottom:14px}
+.shelf .book b{font-family:var(--f-display);font-weight:600;font-size:15px;display:block;line-height:1.35}
+.shelf .book small{display:block;color:var(--soft);font-size:13px}
+.shelf .book p{font-size:13px;color:var(--soft);margin-top:2px}
+.shelf a{color:var(--ink);text-decoration:underline dotted;text-underline-offset:4px;text-decoration-color:var(--mark)}
+.shelf a:hover{background:var(--hl)}
+.links{display:grid;gap:7px}
+.proj p{margin-bottom:14px;max-width:46ch}
+.tick{display:inline-flex;align-items:center;gap:10px;background:none;border:0;padding:0;font-family:var(--f-display);font-weight:600;font-size:14px;text-align:left}
+.tick i{width:22px;height:22px;border:2px solid var(--ink);border-radius:7px 5px 8px 5px;display:grid;place-items:center;flex:none}
+.tick[aria-pressed="true"] i{background:var(--hl);border-color:var(--mark-ink)}
+.tick[aria-pressed="true"] i::after{content:"";width:10px;height:6px;border-left:2.5px solid var(--ink);border-bottom:2.5px solid var(--ink);transform:rotate(-45deg) translate(1px,-1px)}
+.foot{margin-top:72px;font-family:var(--f-display);font-size:14px;color:var(--soft)}
+
+/* sheets */
+.sheet{position:fixed;inset:0;z-index:30;display:flex;justify-content:flex-end}
+.sheet[hidden]{display:none}
+.scrim{position:absolute;inset:0;background:var(--scrim)}
+.drawer{position:relative;width:min(480px,100%);height:100%;overflow:auto;background:var(--page);border-left:1.5px solid var(--faint);
+  padding:calc(26px + env(safe-area-inset-top,0px)) max(22px,env(safe-area-inset-right,0px)) calc(32px + env(safe-area-inset-bottom,0px)) 24px}
+.drawer h2{font-family:var(--f-display);font-weight:700;font-size:28px;letter-spacing:-.02em}
+.drawer .x{float:right;margin-top:4px}
+.entry{padding:14px 0;border-bottom:1.5px dashed var(--faint)}
+.entry .when{font-size:12px}
+.entry b{font-family:var(--f-display);font-weight:600;display:block;line-height:1.35;margin-top:2px}
+.entry p{margin-top:4px;font-size:14px}
+.entry .note{color:var(--soft);white-space:pre-wrap}
+.drawer h3{font-family:var(--f-display);font-weight:700;font-size:16px;margin:26px 0 0;color:var(--mark-ink)}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.copybox{width:100%;margin-top:12px;min-height:140px;font-size:13px;border:1.5px dashed var(--faint);background:transparent;border-radius:8px;padding:8px}
+
+@media(max-width:700px){
+  .year{display:flex;overflow-x:auto;scrollbar-width:none}
+  .year .mo{flex:0 0 58px}
+  .mh{grid-template-columns:minmax(0,1fr)}
+  .mh .big{width:56px;height:56px}
+  .sheetcal{padding:12px 10px 12px}
+  .mtitle{white-space:normal}
+  .mtitle svg{display:none}
+  .legend{gap:14px 24px}
+  .page{padding:32px 18px 22px}
+  .find{width:120px}
+}
+.flag{width:11px;height:11px;margin-left:5px;fill:var(--orange);vertical-align:-1px}
+.fun{display:flex;align-items:center;gap:6px;margin-top:2px;font-family:var(--f-hand);font-weight:700;font-size:16px;color:var(--orange)}
+.fun .flag{margin:0}
+.stkr{filter:drop-shadow(1.2px 0 0 #fff) drop-shadow(-1.2px 0 0 #fff) drop-shadow(0 1.2px 0 #fff) drop-shadow(0 -1.2px 0 #fff) drop-shadow(0 1px 1.5px #0003)}
+.day .stk2{position:absolute;right:6px;bottom:5px;width:28px;height:28px;transform:rotate(var(--r,0deg));transition:transform .18s}
+.day:hover .stk2{transform:rotate(calc(var(--r,0deg) + 9deg)) scale(1.12)}
+.stk2 svg{width:100%;height:100%;display:block}
+.sheetcal{position:relative}
+.stamp{position:absolute;top:-13px;right:24px;transform:rotate(7deg);font-family:var(--f-hand);font-weight:700;font-size:20px;text-transform:uppercase;letter-spacing:.06em;color:#1f9d55;border:3px double #1f9d55;border-radius:10px;padding:1px 12px;background:var(--sheet);z-index:2}
+.mtitle svg{animation:tw 3.4s ease-in-out infinite}
+.mtitle svg:last-child{animation-delay:1.7s}
+@keyframes tw{50%{transform:rotate(18deg) scale(1.14)}}
+.legend .lg{width:28px;height:28px}
+.legend .row2{display:flex;flex-wrap:wrap;gap:4px;max-width:200px}
+.legend .hint{font-size:12px;text-transform:none;letter-spacing:0;font-family:var(--f-body);margin-top:6px}
+.tray{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.tray button{background:none;border:1.5px dashed transparent;border-radius:12px;padding:3px;aspect-ratio:1;min-width:0}
+.tray button svg{width:100%;height:100%;display:block;transition:transform .15s}
+.tray button:hover svg{transform:rotate(-9deg) scale(1.12)}
+.tray button[aria-pressed="true"]{background:var(--hl);border-color:var(--mark)}
+.fact{display:flex;gap:10px;align-items:flex-start;margin-top:14px;padding:10px 12px;border:1.5px dashed var(--orange);border-radius:12px 10px 14px 9px;font-size:13px;line-height:1.45;background:color-mix(in srgb,var(--orange) 8%,transparent)}
+.fact .owl{width:32px;height:32px;flex:none}
+.fact b{font-family:var(--f-hand);color:var(--orange);text-transform:uppercase;letter-spacing:.05em;font-size:15px;margin-right:4px}
+.pip{position:fixed;z-index:40;top:calc(12px + env(safe-area-inset-top,0px));left:50%;width:min(580px,calc(100% - 32px));transform:translateX(-50%);display:flex;align-items:flex-start;gap:8px}
+.pip[hidden]{display:none}
+.pip.show{animation:drop .55s cubic-bezier(.2,1.5,.4,1) both}
+@keyframes drop{from{transform:translate(-50%,-150%)}to{transform:translate(-50%,0)}}
+.owlw{flex:none;width:58px;height:58px;animation:bob 2.6s ease-in-out infinite}
+.owlw .owl{width:100%;height:100%;display:block}
+@keyframes bob{50%{transform:translateY(-3px) rotate(-4deg)}}
+.pip .bub{flex:1;min-width:0;background:var(--page);border:2px solid var(--orange);border-radius:6px 20px 20px 20px;padding:10px 16px 12px;box-shadow:0 5px 0 color-mix(in srgb,var(--orange) 35%,transparent),0 12px 28px #00000026}
+.pip b{font-family:var(--f-hand);font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.06em;font-size:17px;line-height:1.1}
+.pip .lab{font-size:12px;color:var(--soft);margin-top:1px}
+.pip #pipText{font-size:14.5px;line-height:1.5;margin:4px 0 8px}
+.pip .btns{display:flex;gap:18px;font-size:13px}
+.bit{position:fixed;z-index:60;width:16px;height:16px;pointer-events:none;animation:pf .9s ease-out forwards}
+.bit svg{width:100%;height:100%;display:block}
+@keyframes pf{from{transform:translate(-50%,-50%) scale(.4);opacity:1}to{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) rotate(var(--rt)) scale(1);opacity:0}}
+@container (max-width:620px){
+  .day,.oth{min-height:58px}
+  .day{padding:4px 4px 5px;gap:3px;align-items:center}
+  .day .t{display:none}
+  .day .pill{font-size:0;padding:0;height:6px;width:70%}
+  .st{width:14px;height:14px}
+  .day .stk{width:13px;height:13px;left:4px;bottom:4px}
+  .day .stk2{width:17px;height:17px;right:3px;bottom:3px}
+  .day .n{font-size:13px}
+  .flag{display:none}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>The Curious Year</h1>
+      <p class="greet" id="greet"></p>
+      <p class="why" id="why"></p>
+    </div>
+    <nav class="tools" aria-label="Tools">
+      <input class="find" id="find" type="search" placeholder="Find a topic" aria-label="Find a topic">
+      <button class="linkish" id="bFun" type="button">Surprise me</button>
+      <button class="linkish" id="bToday" type="button">Today</button>
+      <button class="linkish" id="bNote" type="button">Notebook</button>
+      <button class="linkish" id="bSet" type="button">Settings</button>
+    </nav>
+  </header>
+
+  <nav class="year" id="year" aria-label="Months"></nav>
+
+  <section class="mh" id="mh"></section>
+
+  <main class="spread">
+    <section class="sheetcal" aria-label="Calendar">
+      <div class="sheethead">
+        <button class="ann" id="prevM" type="button" aria-label="Previous month"><svg viewBox="0 0 34 26" aria-hidden="true"><path d="M30 6C20 3 8 8 5 20"/><path d="M2 14l3 7 7-3"/></svg><span id="prevName"></span></button>
+        <h2 class="mtitle" id="mtitle"></h2>
+        <button class="ann" id="nextM" type="button" aria-label="Next month"><span id="nextName"></span><svg viewBox="0 0 34 26" aria-hidden="true"><path d="M4 6C14 3 26 8 29 20"/><path d="M32 14l-3 7-7-3"/></svg></button>
+      </div>
+      <div class="stamp" id="stamp" hidden>Month done!</div>
+      <div class="cal" id="days"></div>
+      <div class="legend" id="legend"></div>
+      <p class="key">Saturday is a slow day: look back, fix what is fuzzy, wander. Tap a date to open its page.</p>
+    </section>
+    <article class="page" id="page" aria-live="polite"></article>
+  </main>
+
+  <div class="shelf" id="shelf"></div>
+  <p class="foot">Two hours, then stop. Tomorrow is also a day.</p>
+</div>
+
+<div class="pip" id="pip" role="status" aria-live="polite" hidden>
+  <span class="owlw" id="pipOwl"></span>
+  <div class="bub"><b id="pipTitle"></b><p class="lab" id="pipLabel"></p><p id="pipText"></p>
+    <div class="btns"><button class="linkish" id="pipMore" type="button">Another one</button><button class="linkish" id="pipX" type="button">Close</button></div></div>
+</div>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="scrim" id="scrim"></div>
+  <div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Panel"></div>
+</div>
+
+<script>
+const DATA=[{"subject":"World History and Archaeology","focus":"Read the past through evidence, places, and people.","weeks":["How we know the past","Early humans and first settlements","Ancient interconnected worlds","Empires, faiths, and exchange","Medieval to modern turning points"],"topics":["Primary vs secondary sources","Archaeology: layers, objects, and context","Dating the past and historical uncertainty","Human origins and migration","Hunter-gatherer lifeways","Agriculture and settled communities","Early cities and social organization","Mesopotamia and writing","Ancient Egypt and the Nile","Indus Valley cities","Early China and dynastic rule","Ancient African kingdoms and networks","Persian and Greek worlds","Rome and its legacies","South Asian empires and ideas","Nepal and the Himalaya: from Licchavi to unification","Silk Roads and Indian Ocean trade","The Americas before European conquest","The Mongol era and Eurasian exchange","Renaissance, printing, and knowledge","Colonialism and resistance","Revolutions and industrialization","Historical memory and whose stories survive"],"books":[["The Human Web","J. R. and William H. McNeill","Big-picture world history companion."],["A Little History of the World","E. H. Gombrich","Readable overview; pair with other regional perspectives."],["The Epic of Gilgamesh","Anonymous","Seek a library copy or legal public-domain translation."]],"resources":[["World History Encyclopedia","https://www.worldhistory.org/"],["Khan Academy World History","https://www.khanacademy.org/humanities/world-history"],["The Met Timeline","https://www.metmuseum.org/toah/"],["UNESCO World Heritage","https://whc.unesco.org/"]],"project":"Create an annotated world-history timeline with ten turning points, evidence, and connections between regions.","facts":["The word “primary” doesn’t mean “true”. A soldier’s diary is a primary source, and it can still be wrong, biased, or missing half the story.","Archaeologists dig in layers because deeper usually means older, an idea called stratigraphy. Digging destroys the layers, so the notes and photos become the real record.","Radiocarbon dating measures carbon-14 left in once-living things like wood or bone. It reaches back about 50,000 years, and every result comes with a plus-or-minus range.","Homo sapiens fossils from Jebel Irhoud in Morocco are about 300,000 years old, among the oldest known for our species.","Hunter-gatherers lived in small, mobile groups and knew hundreds of plants and animals by heart. For most of human history, this was the only way of life.","Wheat, barley, and peas were among the first crops farmed in the Fertile Crescent, more than 10,000 years ago.","Uruk in Mesopotamia held tens of thousands of people by around 3000 BCE, which makes it one of the first true cities.","Cuneiform means “wedge-shaped”. Scribes pressed a reed stylus into wet clay, and many early tablets were records of grain and beer, not poems.","The Nile flooded every year and left behind dark, fertile silt. Egyptians called their land Kemet, the “black land”, after that soil.","Cities like Mohenjo-daro had planned streets, brick houses, and covered drains. The Indus script is still undeciphered.","The Shang dynasty wrote questions on oracle bones, then heated them until they cracked. The cracks were read as answers, and the inscriptions are among China’s earliest writing.","Sudan has more pyramids than Egypt. The Kushite kings who built them even ruled Egypt for nearly a century as its 25th dynasty.","The Persian Empire built the Royal Road, roughly 2,700 km long, with relay stations along the way so messengers could cross huge distances quickly.","Roman concrete used volcanic ash, and the Pantheon’s concrete dome has stood for nearly 2,000 years.","Ashoka’s edicts were carved on rocks and pillars across South Asia. Scholars could only read the Brahmi script after it was deciphered in the 1830s.","The Changu Narayan pillar inscription, dated 464 CE under King Manadeva, is the oldest dated inscription found in Nepal.","The name “Silk Road” was coined in 1877 by German geographer Ferdinand von Richthofen. The routes carried paper, spices, ideas, and diseases too, not just silk.","The Inca ran a huge empire without a writing system like ours. They kept records with knotted cords called khipu.","The Mongol Empire ran a postal relay called the yam, with stations that supplied fresh horses and riders over enormous distances.","The oldest dated printed book is the Diamond Sutra from China, 868 CE, about 580 years before Gutenberg’s press.","Nepal was never colonised by a European power, though it lost land after the Anglo-Nepalese War of 1814 to 1816 and the Treaty of Sugauli.","In 1800s British mills, machines made cloth far faster than hand weaving, but workers, including children, often laboured very long hours. Factory laws arrived slowly.","Most people in history never got a statue, a biography, or a tomb. Historians hunt through tax records and court cases to hear them."]},{"subject":"Psychology and Human Behavior","focus":"Understand minds, emotions, and behavior through scientific evidence.","weeks":["Psychology as a science","Brain, sensation, and memory","Learning, emotion, and motivation","Personality and social behavior"],"topics":["What psychologists study","Research questions and hypotheses","Correlation vs causation","Experiments, samples, and ethics","Replication and limits of studies","Neurons and brain systems","Sensation and perception","Attention and cognitive load","How memory works","Forgetting and memory errors","Study skills that work: spacing and self-testing","Classical and operant conditioning","Emotion and regulation","Sleep, stress, and wellbeing","Motivation, goals, and habits","Personality theories and their limits","Development across the lifespan","Attachment and relationships","Groups, conformity, and authority","Bias, stereotypes, and attribution"],"books":[["Psychology 2e","OpenStax","Free online textbook; excellent foundation."],["The Man Who Mistook His Wife for a Hat","Oliver Sacks","Case stories; remember one case cannot prove a general rule."],["Thinking, Fast and Slow","Daniel Kahneman","Optional deeper reading; take it slowly."]],"resources":[["OpenStax Psychology","https://openstax.org/details/books/psychology-2e"],["Noba Project","https://nobaproject.com/"],["Crash Course Psychology","https://www.youtube.com/@crashcourse"]],"project":"Create an evidence-based explainer of one behavior using three concepts and a note about limitations.","facts":["Wilhelm Wundt opened what is often called the first psychology lab, in Leipzig in 1879.","A good hypothesis can be proven wrong. “People are complicated” can’t be tested, but “sleep-deprived students recall fewer words” can.","Ice cream sales and drownings both rise in summer. Hot weather explains both, so the ice cream isn’t causing anything.","The Belmont Report of 1979 set out respect for people, doing good, and fairness as core rules for human research in the US.","In 2015, the Open Science Collaboration tried to repeat 100 psychology studies. Fewer than half gave the same result, which sparked a push for open methods.","Your brain has roughly 86 billion neurons, and signals travel along some of them at over 100 metres per second.","Everyone has a blind spot where the optic nerve leaves the eye. Your brain quietly fills it in so you never notice.","In the “invisible gorilla” experiment, about half the viewers counting basketball passes missed a person in a gorilla suit walking through.","Working memory holds only a few chunks at once. Grouping digits in a phone number is a small trick that works with it.","Hermann Ebbinghaus charted the “forgetting curve” in the 1880s by memorising nonsense syllables. Most forgetting happens soon after learning.","Testing yourself usually beats re-reading, and spreading practice over days beats cramming. Both feel harder and work better.","Pavlov was studying digestion in dogs when he noticed they drooled before food arrived. That led to his work on conditioned reflexes.","Naming a feeling, like “I’m anxious”, can help calm it. Researchers call this affect labelling.","Teenagers’ and young adults’ body clocks naturally run later, so late nights aren’t only laziness. Adults generally need seven or more hours of sleep.","Deciding when and where you’ll do a habit makes you more likely to follow through. Researchers call these implementation intentions.","The Big Five traits (openness, conscientiousness, extraversion, agreeableness, neuroticism) have stronger research support than popular four-letter type tests.","Jean Piaget watched his own children closely to build his stages of development. Later studies found babies know more than he thought.","Harry Harlow’s monkeys preferred a soft cloth “mother” over a wire one that held milk, which showed that comfort matters as much as food.","In Solomon Asch’s line experiments, about three quarters of people went along with an obviously wrong group answer at least once.","The fundamental attribution error is blaming someone’s character for what a situation caused. When you’re late it’s traffic, when they’re late it’s laziness."]},{"subject":"World Literature and Storytelling","focus":"Explore stories as windows into people, history, and culture.","weeks":["How stories work","Myths, epics, and oral storytelling","Novels, drama, and poetry","Literature and society"],"topics":["Plot, conflict, and stakes","Narrator and point of view","Character wants and contradictions","Setting as a force","Theme vs topic","Epic structure and oral tradition","Hero journeys across cultures","Trickster tales and fables","Folktales from South Asia","Nepali voices: Devkota, Parijat, and the modern Nepali novel","Translation and cultural context","Novel structure and pacing","Drama and stage directions","Poetic imagery and sound","Metaphor, rhythm, and form","Class, gender, and power in fiction","Colonial and postcolonial voices","Coming-of-age stories","Dystopia and imagined futures"],"books":[["The Little Prince","Antoine de Saint-Exupéry","A short, thoughtful starting point."],["Blue Mimosa","Parijat","A Nepali classic in English; look for a library or bookshop copy."],["Selected stories","Rabindranath Tagore","Choose a reputable translation or library edition."]],"resources":[["Project Gutenberg","https://www.gutenberg.org/"],["Standard Ebooks","https://standardebooks.org/"],["Poetry Foundation","https://www.poetryfoundation.org/"],["Internet Archive","https://archive.org/"]],"project":"Write a short story with an author’s note about its theme, influences, and narrative choices.","facts":["Aristotle wrote about plot over 2,300 years ago and said a story needs a beginning, a middle, and an end.","A first-person narrator only knows what they know. Wide Sargasso Sea (1966) retells Jane Eyre from another character’s view, and it feels like a different book.","E. M. Forster called characters “round” if they can surprise you in a convincing way, and “flat” if they can’t.","In Wuthering Heights the wild Yorkshire moors shape the mood as much as any character does.","A topic is a word like “war”. A theme is a claim about it, like “war makes heroes of no one”.","The Epic of Gilgamesh is among the oldest known stories. It comes from Mesopotamia and was written on clay tablets nearly 4,000 years ago.","Joseph Campbell described a “monomyth”, or hero’s journey, in 1949. Critics say not every culture’s stories fit the pattern.","Anansi the spider, Coyote, and Loki are all tricksters from different cultures. They bend rules and win by wit instead of strength.","The Panchatantra, an ancient collection of Sanskrit animal fables, was translated into many languages and travelled as far as Europe.","Parijat’s novel Shirishko Phool (“Blue Mimosa”) won the Madan Puraskar, one of Nepal’s top literary prizes. Laxmi Prasad Devkota’s Muna Madan is another beloved classic.","The Italian saying “traduttore, traditore” means “translator, traitor”. Every translation involves choices, and something always shifts.","Many Victorian novels, including Dickens’s, first appeared in weekly or monthly instalments, so chapters were built to end on cliffhangers.","Shakespeare’s stage directions are famously short. “Exit, pursued by a bear” from The Winter’s Tale is one of the most famous.","A haiku is traditionally three short lines of 5, 7, and 5 sounds, and usually hints at a season.","George Lakoff and Mark Johnson argued in 1980 that we think in metaphors like “time is money” even in ordinary speech.","Jane Austen’s novels pay close attention to money and marriage. Women often couldn’t inherit property, which is why who marries whom matters so much.","Chinua Achebe’s Things Fall Apart (1958) is among the most widely read African novels, and tells the story of colonisation from inside an Igbo village.","The German word Bildungsroman names a story of a young person’s growth, like Jane Eyre or David Copperfield.","Yevgeny Zamyatin’s novel We, written around 1920, influenced George Orwell’s 1984."]},{"subject":"Philosophy, Ethics and Critical Thinking","focus":"Ask better questions, reason carefully, and examine assumptions.","weeks":["Logic and arguments","Knowledge and reality","Ethics and the good life","Freedom, society, and meaning"],"topics":["Claims, reasons, and conclusions","Deductive vs inductive reasoning","Common reasoning fallacies","Argument mapping","What can we know?","Skepticism and evidence","Mind and body","Consequences and utilitarian reasoning","Duty, rules, and rights","Virtue ethics and character","Buddhist and Indian logic: Nagarjuna, Nyaya, Charvaka","Care ethics and relationships","Justice and fairness","Free will and responsibility","Freedom and its limits","Existentialism and meaning"],"books":[["The Philosophy Book","DK","Visual overview; follow up with original texts."],["Apology","Plato","Public-domain translations are available."],["The Pig That Wants to Be Eaten","Julian Baggini","Optional thought experiments; library copy."]],"resources":[["Stanford Encyclopedia of Philosophy","https://plato.stanford.edu/"],["Internet Encyclopedia of Philosophy","https://iep.utm.edu/"],["OpenLearn","https://www.open.edu/openlearn/"],["Wireless Philosophy","https://www.wi-phi.com/"]],"project":"Write a reasoned ethical essay with a fair counterargument and your response.","facts":["In logic, an argument is just reasons plus a conclusion. It doesn’t have to be an angry quarrel.","“Every swan I’ve seen is white” is a classic inductive guess. Then black swans turned up in Australia.","“Ad hominem” means “to the person”: attacking who says something instead of what they say.","Drawing an argument as boxes and arrows shows which reasons actually hold up the conclusion, and makes gaps easy to spot.","Plato described knowledge as “justified true belief”. In 1963 Edmund Gettier published a short paper with counterexamples that still trouble that definition.","Descartes tried doubting everything he could, and ended up with “I think, therefore I am”.","Descartes thought mind and body were different kinds of thing. Philosophers still argue about how they connect.","Jeremy Bentham’s preserved body, dressed in his own clothes, is kept at University College London.","Kant’s “categorical imperative” asks whether you could want everyone to follow your rule. “Lie when it’s convenient” fails that test.","Aristotle said virtues are habits. You become brave by doing brave things, a bit like learning an instrument.","Nagarjuna, who lived around the 2nd century CE, founded Madhyamaka philosophy. The Charvaka school was an early skeptical, materialist tradition in India.","Care ethics, developed by thinkers like Carol Gilligan and Nel Noddings, starts from relationships and responsibility instead of abstract rules.","John Rawls’ “veil of ignorance” asks you to design a society without knowing whether you’d be rich or poor, or where you’d be born.","In Benjamin Libet’s experiments in the 1980s, brain activity appeared before people said they decided to move. What that means is still debated.","John Stuart Mill’s “harm principle” says power can rightly be used against someone only to prevent harm to others.","Sartre said “existence precedes essence”: you aren’t born with a fixed purpose, you make one through your choices."]},{"subject":"Mythology, Religions and Worldviews","focus":"Explore sacred stories, rituals, symbols, and worldviews with respect.","weeks":["What myths and religions do","South Asian traditions","Religions across regions","Mythic worlds and modern life"],"topics":["Myth, legend, scripture, and history","Oral traditions and sacred narratives","Rituals, symbols, and sacred spaces","How scholars study belief","Hindu traditions: diversity and history","Buddhist traditions and the life of the Buddha","Lumbini and the Kathmandu Valley: shared sacred places","Jain ideas and nonviolence","Sikh history and practices","Bhakti and Sufi traditions","Judaism: history and traditions","Christianity: origins and diversity","Islam: origins and diverse practices","Confucianism and Daoism","Indigenous traditions and living communities","Greek and Roman myth cycles","Egyptian and Norse myth: two views of the cosmos","Myth in modern books and cinema"],"books":[["Mythos","Stephen Fry","Accessible Greek myth retellings; compare with ancient sources."],["The Bhagavad Gita","Various translators","Choose a reputable translation and read in context."],["The World’s Religions","Huston Smith","Optional comparative library reading."]],"resources":[["BBC Religions","https://www.bbc.co.uk/religion/religions/"],["Smarthistory","https://smarthistory.org/"],["The British Museum","https://www.britishmuseum.org/"],["The Met Collection","https://www.metmuseum.org/art/collection"]],"project":"Create a respectful comparative guide to selected myths or traditions, noting context and diversity.","facts":["In everyday speech “myth” means false, but scholars use it for stories a community tells to explain its world.","Oral traditions kept stories steady for centuries through rhythm, repetition, and rehearsal. The Vedas were passed on by memory long before they were written down.","Many sacred spaces share one idea: you step from ordinary space into special space, often by removing shoes or washing your hands.","Religious studies tries to describe beliefs fairly without ruling on whether they are true.","“Hinduism” covers many traditions and texts, with no single founder or central book. The word comes from “Sindhu”, the Indus river.","The Buddha was born as Siddhartha Gautama in Lumbini, in present-day Nepal, as an Ashokan pillar inscription records.","The Kathmandu Valley has seven World Heritage monument zones, and Lumbini is a separate World Heritage site.","Some Jain monks and nuns sweep the path ahead of them to avoid harming tiny insects, following the principle of ahimsa, or non-harm.","Sikh gurdwaras run a langar, a free community kitchen where anyone can sit and eat together.","Bhakti poets like Kabir and Mirabai sang in everyday languages, so devotion was open to people who didn’t know Sanskrit.","The Hebrew calendar is lunisolar, and Shabbat begins at sunset on Friday.","Christianity began in the 1st century CE and today includes many traditions, among them Orthodox, Catholic, and Protestant churches.","The Islamic calendar is lunar, so Ramadan moves about ten or eleven days earlier each year.","The Dao De Jing is only about 5,000 characters long, yet it’s one of the most translated books in the world.","Many Indigenous traditions tie sacred stories to specific places. A mountain, a river, or a valley is part of the story itself.","The Romans adopted many Greek gods under new names: Zeus became Jupiter, and Aphrodite became Venus.","Norse myth ends with Ragnarök, a great final battle, after which the world is reborn. Egyptians pictured the dead having their hearts weighed against a feather.","J. R. R. Tolkien, a scholar of Old English, drew on Norse and Old English myth when writing The Lord of the Rings."]},{"subject":"Science, Mathematics and the Universe","focus":"Build scientific literacy from everyday evidence to cosmic scale.","weeks":["Scientific thinking and mathematics","Physics and chemistry","Life and evolution","Earth, space, and climate"],"topics":["Observation, models, and testable claims","Measurement, units, and estimation","Ratios, percentages, and graphs","Probability and uncertainty","Reading a news chart: spotting misleading statistics","Patterns, variables, and equations","Motion, forces, and energy","Waves, light, and sound","Electricity and magnetism","Atoms and the periodic table","Chemical reactions in daily life","Cells and living systems","DNA, genes, and inheritance","Natural selection and evolution","Human body systems overview","Ecosystems and food webs","Earth’s structure and plate tectonics","Weather vs climate","Solar system and planetary science","Stars, galaxies, and cosmic scale","Climate evidence and energy balance","Reading a scientific paper without fear"],"books":[["Astrophysics for People in a Hurry","Neil deGrasse Tyson","Short introduction to cosmic ideas."],["Biology 2e","OpenStax","Free online textbook for biology foundations."],["Seven Brief Lessons on Physics","Carlo Rovelli","Short, lyrical tour of modern physics."]],"resources":[["Khan Academy","https://www.khanacademy.org/"],["OpenStax","https://openstax.org/"],["NASA","https://www.nasa.gov/"],["PhET Simulations","https://phet.colorado.edu/"],["Our World in Data","https://ourworldindata.org/"]],"project":"Create a scientific explainer with a diagram or graph, reliable sources, and a section on uncertainty.","facts":["Galileo pointed a telescope at Jupiter in 1610 and saw four moons circling it, which didn’t fit the idea that everything orbits Earth.","The metre was first defined as one ten-millionth of the distance from the North Pole to the equator. Today it’s defined using the speed of light.","A graph whose y-axis doesn’t start at zero can make a tiny change look huge. Check the axis labels first.","In a room of 23 people, there’s about a 50% chance two of them share a birthday.","Percent change can mislead. Going from 1 case to 2 is a 100% increase, but it’s still tiny. Always ask what the starting number was.","The equals sign was invented by the Welsh mathematician Robert Recorde in 1557, because he was tired of writing “is equal to”.","In a vacuum, a feather and a hammer fall at the same rate. Astronaut David Scott showed this on the Moon in 1971.","Light takes about 8 minutes and 20 seconds to travel from the Sun to Earth.","Lightning can heat the air around it to about 30,000 °C, much hotter than the surface of the Sun.","Dmitri Mendeleev’s 1869 periodic table left gaps for elements nobody had found yet, and later discoveries fit his predictions.","Baking soda and vinegar fizz because they make carbon dioxide gas, the same gas yeast makes to puff up bread.","Robert Hooke coined the word “cell” in 1665 while looking at cork, because the tiny boxes reminded him of monks’ rooms.","If you stretched out the DNA from one human cell, it would be about two metres long.","Darwin waited about 20 years to publish On the Origin of Species in 1859, and Alfred Russel Wallace had reached a similar idea independently.","Your heart beats roughly 100,000 times a day, and your stomach lining replaces itself every few days.","After wolves were reintroduced to Yellowstone in 1995, changes rippled through the food web, and scientists still debate how far they went.","The Himalaya are still rising by a few millimetres a year as India pushes into Asia.","Weather is what you wear today, and climate is what’s in your wardrobe: the long-term pattern, usually averaged over 30 years.","A day on Venus is longer than its year. Venus spins once in about 243 Earth days but orbits the Sun in about 225.","Proxima Centauri, the Sun’s nearest neighbour star, is over four light years away, so we see it as it was more than four years ago.","Air bubbles trapped in Antarctic ice cores let scientists measure the ancient atmosphere, going back hundreds of thousands of years.","A good way to start a scientific paper: read the abstract and the figures first, then the methods. Scientists read papers out of order too."]},{"subject":"Art, Architecture, Design and Cinema","focus":"Learn to see how humans make meaning visually.","weeks":["How to look at art","Architecture and design","Photography and visual communication","Cinema and storytelling"],"topics":["Line, shape, color, and texture","Composition and visual hierarchy","Symbolism and context","Art across world traditions","Nepali art: paubha, Newar craft, and Kathmandu temples","How buildings respond to climate and place","Ancient and sacred architecture","Bauhaus and design principles","Public space and accessibility","Framing, angle, and light","Photojournalism and ethics","Typography and layout","Color theory and mood","Advertising and persuasion","Shots, editing, and continuity","Sound, music, and silence","Genre and film history","Documentary and point of view","Adaptation and representation"],"books":[["Ways of Seeing","John Berger","Influential guide to images, culture, and power."],["The Story of Art","E. H. Gombrich","Selected chapters; broaden beyond its traditional canon."],["Film Art: An Introduction","Bordwell, Thompson, and Smith","Optional library reference for film language."]],"resources":[["Google Arts & Culture","https://artsandculture.google.com/"],["Smarthistory","https://smarthistory.org/"],["The Met Collection","https://www.metmuseum.org/art/collection"],["National Film Board of Canada","https://www.nfb.ca/"]],"project":"Produce a visual essay analyzing an artwork, building, design object, or film sequence.","facts":["A painted pig on a cave wall in Sulawesi, Indonesia, has been dated to more than 45,000 years ago.","The “rule of thirds” divides a picture into a 3 by 3 grid. Placing the important parts along the lines tends to feel balanced.","In many European still-life paintings, a skull or an hourglass quietly reminds the viewer that time passes. They’re called memento mori.","Japanese woodblock prints like Hokusai’s Great Wave were cheap and mass-produced, and later inspired many European painters.","Paubha is a Newar painting tradition of Nepal, usually of deities, painted on cloth with mineral pigments in strict proportions.","Traditional Newar houses have carved wooden lattice windows that let in air and light while keeping some privacy.","Boudhanath stupa in Kathmandu is one of the largest spherical stupas in the world.","The Bauhaus school ran only from 1919 to 1933, but its ideas about simple shapes and useful design still shape furniture and typefaces today.","Curb cuts, the little ramps on pavements, were fought for by wheelchair users, and they also help strollers, bikes, and suitcases.","Photographers call the hour after sunrise and before sunset the “golden hour”, because the light is soft and warm.","A photo can be cropped or captioned to change its meaning. Ethical photojournalists don’t stage or alter what happened.","Serif fonts have small “feet” at the ends of letters. Sans-serif means “without serif”.","Warm colours like red and orange tend to feel energetic, and cool blues tend to feel calm, though meanings shift between cultures.","Many ads sell a feeling instead of a product. Notice what an ad makes you want before you notice what it sells.","Early filmmakers found that placing two shots together makes viewers invent a link between them. It’s called the Kuleshov effect.","Silent films were never really silent. They were usually shown with live music.","The Lumière brothers held one of the first public film screenings, in Paris in 1895.","Nanook of the North (1922) is an early documentary, and its director staged parts of it, which began a long argument about truth in documentaries.","A film adaptation always changes the book. Two hours can’t hold 400 pages, so choosing what to cut is the real art."]},{"subject":"Politics, Law and Justice","focus":"Understand power, rights, institutions, law, and public choices.","weeks":["Political ideas and systems","Constitutions and institutions","Law, rights, and justice","Global politics and civic life"],"topics":["What is power?","Democracy and representation","Authoritarianism and legitimacy","Political ideologies","Federalism and local government","Constitutional principles","Nepal’s road: from monarchy to federal republic","Legislatures and lawmaking","Courts and judicial review","Elections and representation","Civil vs criminal law basics","Due process and presumption of innocence","Human rights frameworks","Equality and discrimination","Punishment and rehabilitation","Diplomacy and international organizations","Conflict, peace, and negotiation","Media and political persuasion","Public policy and evidence"],"books":[["The Politics Book","DK","Visual introduction; use it as a map, not a final authority."],["Constitution of Nepal","Government of Nepal","Read the official text and note institutions and rights."],["Justice: What’s the Right Thing to Do?","Michael J. Sandel","Optional library reading and lecture companion."]],"resources":[["Nepal Law Commission","https://lawcommission.gov.np/"],["Election Commission Nepal","https://election.gov.np/"],["Parliament of Nepal","https://hr.parliament.gov.np/"],["International IDEA","https://www.idea.int/"]],"project":"Write a sourced policy brief with options, trade-offs, and a reasoned recommendation.","facts":["Max Weber defined a state as the group that claims a legitimate monopoly on the use of force in a territory.","“Democracy” comes from the Greek demos (people) and kratos (rule). In ancient Athens, many public jobs were filled by lottery.","Rulers rarely rely on force alone. Legitimacy, people believing a ruler has the right to rule, is a much cheaper way to stay in power.","“Left” and “right” in politics come from where people sat in France’s National Assembly in 1789.","Nepal’s 2015 constitution created seven provinces and 753 local governments.","Nepal’s current constitution was promulgated on 20 September 2015, which is 3 Ashwin 2072.","Nepal was declared a federal democratic republic on 28 May 2008, when the Constituent Assembly abolished the monarchy.","Nepal’s federal parliament has two houses: the House of Representatives and the National Assembly.","Judicial review means courts can check whether a law or an act of government follows the constitution. In the US it was established by Marbury v. Madison in 1803.","Different voting systems can turn the same votes into different results. Nepal’s House of Representatives mixes direct constituency seats with proportional ones.","In criminal law the state brings the case. In civil law one party sues another, often over money or a dispute.","The idea that a person is innocent until proven guilty goes back to Roman law and appears in the Universal Declaration of Human Rights.","The Universal Declaration of Human Rights was adopted by the UN General Assembly on 10 December 1948.","Equality and equity differ: equality gives everyone the same, equity gives people what they need to reach the same place.","Norway’s prison system focuses on rehabilitation and is often studied for its low reoffending rates.","The United Nations was founded in 1945, and Nepal joined in 1955.","Nepal’s Comprehensive Peace Accord was signed on 21 November 2006, ending a decade-long conflict.","“Propaganda” began as a neutral word. It comes from a Catholic Church committee set up in 1622 to spread the faith.","Before rolling out a policy widely, governments often run a pilot in a small area to see whether it works."]},{"subject":"Sociology, Anthropology and Human Cultures","focus":"See society from more than one point of view.","weeks":["Sociological lenses","Culture and anthropology","Power, change, and movement","Nepal and global connections"],"topics":["What is society?","Norms, values, and socialization","Institutions and social roles","Class, status, and inequality","Gender and identity as social topics","Culture, symbols, and meaning","Ethnography and field notes","Kinship and family diversity","Language and cultural context","Urbanization and community","Migration and diaspora","Identity and belonging","Collective action and social movements","Caste, class, and mobility in context","Language and regional identity in Nepal","Rural and urban life","Tourism and cultural representation","Globalization and cultural exchange"],"books":[["The Sociological Imagination","C. Wright Mills","Selected sections on personal experience and social structures."],["Introduction to Sociology 3e","OpenStax","Free online textbook."],["Anthropology: What Does It Mean to Be Human?","Lavenda and Schultz","Optional library introduction."]],"resources":[["OpenStax Sociology","https://openstax.org/details/books/introduction-sociology-3e"],["Society for Cultural Anthropology","https://culanth.org/"],["Smithsonian Natural History","https://naturalhistory.si.edu/"],["Our World in Data","https://ourworldindata.org/"]],"project":"Complete a small ethical social inquiry using published sources or a consent-based interview.","facts":["Sociologist C. Wright Mills said the “sociological imagination” links personal troubles to public issues.","Norms are mostly invisible until someone breaks one, like standing too close in a lift.","Families, schools, markets, and governments are institutions: patterns of behaviour that outlast any single person.","Max Weber argued that class, status, and power are different things, so someone can have prestige without much money.","Sociologists often separate sex from gender, treating gender as roles and expectations that societies build and that change over time.","A handshake, a namaste, a bow: gestures carry meaning only because a group agrees on them.","Bronisław Malinowski pioneered long-term fieldwork, living among the people of the Trobriand Islands around 1915 to 1918.","Some societies trace descent through the mother’s line, others through the father’s, and some through both. Family comes in many shapes.","Nepal has more than 120 languages, according to its recent censuses.","More than half of the world’s people have lived in cities since about 2007.","Remittances from Nepalis working abroad equal a large share of Nepal’s GDP, over a fifth in recent years.","People hold many identities at once: a student, a sister, a Newar, a Nepali, a reader. Which one feels strongest shifts with the situation.","The Jana Andolan of 1990 restored multiparty democracy in Nepal after mass protests.","Nepal’s 1963 Muluki Ain removed the legal basis for caste hierarchy, and a 2011 law made caste-based discrimination a punishable crime.","Nepali is the most widely spoken language in Nepal, but census data show many people speak others at home, like Maithili, Bhojpuri, and Tharu.","Ferdinand Tönnies contrasted close-knit “Gemeinschaft” communities with more impersonal “Gesellschaft” societies.","Tourism can bring income and also turn living traditions into performances. Sociologists ask who decides what is shown.","The momo is believed to have reached Nepal through Tibetan and Newar trading links, and now comes in countless local versions."]},{"subject":"Economics and Personal Finance","focus":"Understand money, markets, choices, and trade-offs.","weeks":["How economies work","Trade, government, and the world","Personal finance foundations","Risk, decisions, and future planning"],"topics":["Scarcity and opportunity cost","Supply, demand, and prices","Markets and competition","GDP and living standards","Inflation and unemployment","Comparative advantage and trade","Taxes and public goods","Central banks and monetary policy","Development and inequality","Nepal’s economy: remittances, hydropower, and trade","Build a fictional monthly budget","Saving and emergency funds","Bank accounts, interest, and fees","Debt and borrowing costs","Compound interest and time","Risk and diversification basics","Fraud, scams, and consumer protection","Behavioral biases in money decisions"],"books":[["The Undercover Economist","Tim Harford","Accessible introduction to economic reasoning."],["The Psychology of Money","Morgan Housel","Short essays on behavior and money."],["Principles of Economics","OpenStax","Free online economics textbook."]],"resources":[["OpenStax Economics","https://openstax.org/subjects/business"],["Nepal Rastra Bank","https://www.nrb.org.np/"],["World Bank Data","https://data.worldbank.org/"],["Khan Academy Economics","https://www.khanacademy.org/economics-finance-domain"]],"project":"Build a personal-finance handbook using a fictional budget, savings plan, and risk checklist.","facts":["Opportunity cost is what you give up: an hour spent scrolling is an hour not spent reading.","When prices rise, buyers usually buy less and sellers want to sell more. The price where they meet is called the equilibrium.","Adam Smith’s “invisible hand” appears in The Wealth of Nations (1776), but only once in the whole book.","GDP counts the value of goods and services made in a country in a year, but it doesn’t count unpaid work like caring for family.","In Germany in 1923, hyperinflation got so bad that prices were doubling every few days.","David Ricardo showed in 1817 that countries can both gain from trade even if one is better at making everything.","Public goods, like street lighting, can be used by everyone at once and are hard to charge for, which is why taxes often pay for them.","Nepal Rastra Bank was set up in 1956 as Nepal’s central bank.","Economists measure inequality with the Gini coefficient, from 0 (everyone equal) to 1 (one person has everything).","Nepal’s rivers fall steeply from the Himalaya, which gives it huge hydropower potential, and it now sells surplus electricity to India.","The 50/30/20 rule splits income into needs, wants, and savings. It’s a starting point, not a law.","Many advisers suggest an emergency fund covering three to six months of living costs.","The word “bank” probably comes from the Italian “banco”, the bench money-changers worked at.","Interest is the price of borrowing, and a small difference in rate can mean a big difference in what you repay.","The rule of 72: divide 72 by the interest rate to estimate how many years it takes money to double.","“Don’t put all your eggs in one basket” is diversification in a sentence.","Scams often create urgency or secrecy: “act now” and “tell no one”. Pausing for an hour is a strong defence.","Loss aversion: losing 1,000 rupees feels worse than gaining 1,000 feels good. Kahneman and Tversky studied this."]},{"subject":"Technology, AI and the Digital World","focus":"Understand the tools shaping modern life and use them responsibly.","weeks":["How computers and the internet work","Programming and data","AI and machine learning","Digital life and responsibility"],"topics":["Bits, bytes, and binary ideas","Hardware, operating systems, and files","Networks and the internet","Websites, browsers, and servers","Data, databases, and APIs","Algorithms and step-by-step instructions","Variables, conditions, and loops","Functions and debugging","Data tables and visualization","AI vs automation vs machine learning","Training data and labels","Classification and prediction","Neural networks at a high level","Generative AI and its limitations","Using AI to learn: checking what it tells you","Passwords, authentication, and phishing","Privacy and data trails","Algorithmic bias and fairness","AI in education and work"],"books":[["Hello World","Hannah Fry","Accessible introduction to algorithmic decisions."],["Think Python","Allen B. Downey","Free online beginner programming book."],["Automate the Boring Stuff with Python","Al Sweigart","Free online; first projects that actually do something."]],"resources":[["Elements of AI","https://www.elementsofai.com/"],["Think Python","https://greenteapress.com/wp/think-python-3rd-edition/"],["Google Teachable Machine","https://teachablemachine.withgoogle.com/"],["CS50","https://cs50.harvard.edu/x/"],["CISA","https://www.cisa.gov/"]],"project":"Create a responsible-AI explainer or tiny demo, including limitations, privacy, and bias.","facts":["A bit is a 1 or a 0. Eight bits make a byte, and one byte can store a single letter like “A”.","In 1947, operators found a moth stuck in Harvard’s Mark II computer and taped it into the logbook, a famous early “bug”.","Data on the internet is cut into small packets, which can take different routes and get reassembled at the end.","Tim Berners-Lee invented the World Wide Web in 1989 while working at CERN.","An API is like a restaurant menu: it lists what you can ask for without showing you the kitchen.","The word “algorithm” comes from al-Khwarizmi, a Persian mathematician of the 9th century.","Ada Lovelace wrote what’s often called the first computer program, in the 1840s.","Rubber duck debugging: explain your code line by line to a rubber duck and you often find the bug yourself.","Florence Nightingale used a “rose” diagram to show that more soldiers died of disease than of wounds in the Crimean War.","The term “artificial intelligence” was coined for a summer workshop at Dartmouth in 1956.","A model learns from examples: show it enough labelled cat photos and it learns what cats tend to look like. Bad or skewed labels teach bad lessons.","Your email spam filter is a classifier: it sorts messages into spam or not spam based on patterns.","Artificial neural networks are only very loosely inspired by the brain. In practice they’re layers of numbers adjusted during training.","Language models can write confident sentences that are wrong, which people call hallucinations. Always check important claims.","A good habit: ask an AI for its source, then open the source yourself. If you can’t find it, treat the claim as unconfirmed.","A long passphrase of several random words is usually stronger and easier to remember than a short, complicated password.","Photos from your phone often carry hidden data, like when and where they were taken. It’s called metadata.","If a system learns from past decisions that were unfair, it can repeat that unfairness at scale.","Calculators were once debated in classrooms, and schools later learned to teach with them. People are now working out the same for AI."]},{"subject":"Geography, World Cultures and Global Connections","focus":"Connect places, people, environments, and futures.","weeks":["Maps and physical geography","People and places","Global systems and shared challenges","Nepal, South Asia, and the future"],"topics":["Latitude, longitude, scale, and projections","Continents, oceans, and landforms","Climate zones and biomes","Rivers, mountains, and settlement","Natural hazards and risk","Earthquakes: Nepal in 2015 and living with risk","Population and demographic change","Cities, transport, and urban form","Food, climate, and cultural exchange","Energy systems and transitions","Biodiversity and conservation","Climate change and adaptation","Water, food, and resource access","Nepal’s physical regions and ecosystems","Himalayan glaciers, rivers, and water","South Asian connections","Heritage, tourism, and conservation","Development and inequality","Futures thinking and scenarios"],"books":[["Prisoners of Geography","Tim Marshall","Accessible geopolitical framing; geography is not destiny."],["The Sixth Extinction","Elizabeth Kolbert","Optional reporting on biodiversity loss."],["The World Factbook","CIA","Free reference data; cross-check and note dates."]],"resources":[["National Geographic Education","https://education.nationalgeographic.org/"],["CIA World Factbook","https://www.cia.gov/the-world-factbook/"],["Our World in Data","https://ourworldindata.org/"],["NASA Earth Observatory","https://earthobservatory.nasa.gov/"],["UN Data","https://data.un.org/"]],"project":"Create a multimedia atlas showing how geography, history, culture, economics, and environment connect.","facts":["The Mercator map makes Greenland look as large as Africa. Africa is about 14 times bigger.","The Pacific Ocean is larger than all of Earth’s land put together.","Within a couple of hundred kilometres, Nepal rises from the hot Terai plains to Mount Everest at 8,849 m.","Many early cities grew on rivers: the Nile, the Tigris and Euphrates, the Indus, and the Yellow River.","Risk depends on hazard, exposure, and vulnerability, so the same earthquake can do very different damage in different places.","Nepal’s earthquake on 25 April 2015 had a magnitude of 7.8 and affected a large part of the country.","The world’s population passed 8 billion in November 2022, according to the United Nations.","A city’s shape follows its transport: streets laid out for walking look very different from streets laid out for cars.","Chillies came to Asia from the Americas only about 500 years ago, after European voyages. Potatoes and tomatoes made the same trip.","Almost all of Nepal’s electricity comes from hydropower.","Nepal is home to the one-horned rhino, the Bengal tiger, and the red panda.","Adaptation means adjusting to changes already happening, like new crop varieties or flood early-warning systems.","Only about 3% of Earth’s water is fresh water, and most of that is frozen in glaciers and ice.","Nepal has three main ecological belts running east to west: the Terai, the Hills, and the Himal (mountains).","The Himalaya hold the largest store of ice outside the polar regions, which is why they’re sometimes called the “Third Pole”.","The Koshi, Gandaki, and Karnali rivers begin in Nepal’s mountains and flow on into India to join the Ganga.","Nepal has four World Heritage sites: the Kathmandu Valley, Lumbini, Chitwan National Park, and Sagarmatha National Park.","The UN’s Human Development Index combines health, education, and income, because wealth alone doesn’t capture wellbeing.","Futures thinkers use scenarios, not predictions: several plausible stories about tomorrow to test plans against."]}];
+const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+const WD=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const ACC=["#b8893f","#c0708e","#5f8fc4","#8a72c4","#6f9a6a","#3f9a96","#d0805a","#6b78c9","#a566b8","#a58f2e","#3b8fb8","#c05a68"];
+const DOODLE=[
+ '<path d="M19 7h10M21 7c-1 6-9 8-9 19a12 12 0 0 0 24 0c0-11-8-13-9-19M13 22c7 3 15 3 22 0M12 25c-5-2-6 5-1 6M36 25c5-2 6 5 1 6"/>',
+ '<path d="M17 41v-7c-6-4-8-10-6-16 3-8 12-12 20-9 8 3 11 11 8 18-1 3-4 4-6 5v9"/><path d="M25 19c0-4 5-4 5 0s-6 4-6 8"/>',
+ '<path d="M6 12c6-3 12-3 18 2 6-5 12-5 18-2v26c-6-3-12-3-18 2-6-5-12-5-18-2z"/><path d="M24 14v26"/>',
+ '<path d="M10 8h28a4 4 0 0 1 4 4v14a4 4 0 0 1-4 4H22l-8 7v-7h-4a4 4 0 0 1-4-4V12a4 4 0 0 1 4-4z"/><path d="M20 17c0-5 9-5 9 0 0 4-5 4-5 8M24 28v.5"/>',
+ '<path d="M30 7a17 17 0 1 0 11 27A14 14 0 0 1 30 7z"/><path d="M36 9l1.5 3.5L41 14l-3.5 1.5L36 19l-1.5-3.5L31 14l3.5-1.5z"/>',
+ '<ellipse cx="24" cy="24" rx="18" ry="7"/><ellipse cx="24" cy="24" rx="18" ry="7" transform="rotate(60 24 24)"/><ellipse cx="24" cy="24" rx="18" ry="7" transform="rotate(120 24 24)"/><circle cx="24" cy="24" r="2"/>',
+ '<path d="M24 6C13 6 6 14 6 23c0 9 8 15 15 15 3 0 4-2 3-4s0-4 3-4h6c5 0 9-3 9-8 0-8-8-16-18-16z"/><circle cx="16" cy="20" r="2"/><circle cx="24" cy="14" r="2"/><circle cx="33" cy="18" r="2"/>',
+ '<path d="M24 8v31M13 40h22M9 14h30"/><path d="M9 14l-5 12a6 6 0 0 0 10 0zM39 14l-5 12a6 6 0 0 0 10 0z"/>',
+ '<circle cx="24" cy="12" r="4"/><path d="M16 32c0-6 3-10 8-10s8 4 8 10z"/><circle cx="9" cy="21" r="3"/><path d="M3 34c0-4 2-7 6-7"/><circle cx="39" cy="21" r="3"/><path d="M45 34c0-4-2-7-6-7"/>',
+ '<circle cx="24" cy="24" r="17"/><circle cx="24" cy="24" r="12"/><path d="M24 15v18M28 19c-1-3-8-3-8 1s8 3 8 6-7 4-9 1"/>',
+ '<path d="M16 14L6 24l10 10M32 14l10 10-10 10M27 9l-6 30"/>',
+ '<path d="M3 38l13-21 8 12 5-7 15 16z"/><circle cx="35" cy="11" r="4"/>'
+];
+const svg=(i,c)=>`<svg class="d ${c||""}" viewBox="0 0 48 48" aria-hidden="true">${DOODLE[i]}</svg>`;
+
+const STAR='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5c.9 6.2 3.4 8.7 10.5 10.5-7.1 1.8-9.6 4.3-10.5 10.5C11.1 16.3 8.6 13.8 1.5 12 8.6 10.2 11.1 7.7 12 1.5z"/></svg>';
+const ico=(inner)=>`<svg class="st" viewBox="0 0 24 24" aria-hidden="true">${inner}</svg>`;
+const ST={
+ done:ico('<circle cx="12" cy="12" r="11" fill="#1f9d55"/><path d="M7 12.5l3.2 3.2L17 8.8" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>'),
+ wip:ico('<circle cx="12" cy="12" r="11" fill="#ef5fa0"/><circle cx="7.5" cy="12" r="1.7" fill="#fff"/><circle cx="12" cy="12" r="1.7" fill="#fff"/><circle cx="16.5" cy="12" r="1.7" fill="#fff"/>'),
+ todo:ico('<circle cx="12" cy="12" r="11" fill="#2457d6"/><path d="M8 16.5l8-9" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/>')
+};
+const stk=inner=>`<svg class="stk stkr" viewBox="0 0 24 24" aria-hidden="true">${inner}</svg>`;
+const STK=[ // by how the day felt: slog, fine, lit up
+ stk('<path d="M5 4h14a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3h-7l-5 4v-4H5a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3z" fill="#2db7c8"/>'),
+ stk('<path d="M12 1.5c.9 6.2 3.4 8.7 10.5 10.5-7.1 1.8-9.6 4.3-10.5 10.5C11.1 16.3 8.6 13.8 1.5 12 8.6 10.2 11.1 7.7 12 1.5z" fill="#b05fe8"/>'),
+ stk('<path d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z" fill="#f2621b"/>')
+];
+const AST=stk('<path d="M12 3v18M4.2 7.5l15.6 9M19.8 7.5l-15.6 9" fill="none" stroke="#1fae3a" stroke-width="3" stroke-linecap="round"/>');
+const FACE=(x,y,s)=>`<circle cx="${x-s}" cy="${y}" r="1.2" fill="#3a2e1d"/><circle cx="${x+s}" cy="${y}" r="1.2" fill="#3a2e1d"/><circle cx="${x-s-1.8}" cy="${y+2}" r="1.5" fill="#ff8fa3" opacity=".65"/><circle cx="${x+s+1.8}" cy="${y+2}" r="1.5" fill="#ff8fa3" opacity=".65"/><path d="M${x-1.6} ${y+2}q1.6 1.8 3.2 0" fill="none" stroke="#3a2e1d" stroke-width="1.1" stroke-linecap="round"/>`;
+const SNAMES=["star","heart","cloud","sun","book","coffee","cat","flower","rocket","idea","rainbow","mushroom"];
+const STICKERS=[
+ '<path d="M16 3l3.6 8.2 8.9.8-6.7 5.9 2 8.7L16 22l-7.8 4.6 2-8.7-6.7-5.9 8.9-.8z" fill="#ffd23f" stroke="#e8a900" stroke-width="1.4" stroke-linejoin="round"/>'+FACE(16,15,3.2),
+ '<path d="M16 28S4 20.5 4 12.5A6.5 6.5 0 0 1 16 9a6.5 6.5 0 0 1 12 3.5C28 20.5 16 28 16 28z" fill="#ff7aa8" stroke="#e2477f" stroke-width="1.4"/>'+FACE(16,15,4),
+ '<path d="M9 25a6 6 0 0 1-.6-11.9A7.5 7.5 0 0 1 23 12.5 6.2 6.2 0 0 1 23.5 25z" fill="#cfe9ff" stroke="#7fb8ea" stroke-width="1.4"/>'+FACE(16,19,4),
+ '<g stroke="#e58e00" stroke-width="2" stroke-linecap="round"><path d="M16 2.5v3M16 26.5v3M2.5 16h3M26.5 16h3M6.5 6.5l2.1 2.1M23.4 23.4l2.1 2.1M25.5 6.5l-2.1 2.1M8.6 23.4l-2.1 2.1"/></g><circle cx="16" cy="16" r="8" fill="#ffb627" stroke="#e58e00" stroke-width="1.4"/>'+FACE(16,15,3),
+ '<rect x="6" y="5" width="20" height="23" rx="2.5" fill="#9b87f5" stroke="#6a55d6" stroke-width="1.4"/><path d="M9.5 5v23" stroke="#6a55d6" stroke-width="1.4"/>'+FACE(18,16,3),
+ '<path d="M12 3c-1.5 2 1.5 3 0 5M17 3c-1.5 2 1.5 3 0 5" fill="none" stroke="#b9822f" stroke-width="1.3" stroke-linecap="round"/><path d="M7 11h16v8a7 7 0 0 1-7 7h-2a7 7 0 0 1-7-7z" fill="#fff3d6" stroke="#b9822f" stroke-width="1.4"/><path d="M23 13h2.5a3 3 0 0 1 0 6H23" fill="none" stroke="#b9822f" stroke-width="1.4"/>'+FACE(15,18.5,3),
+ '<path d="M5 6l6 4h10l6-4v13a11 9 0 0 1-22 0z" fill="#f7a35c" stroke="#d4772a" stroke-width="1.4" stroke-linejoin="round"/><path d="M2 17h4M2 20.5l4-1M30 17h-4M30 20.5l-4-1" stroke="#d4772a" stroke-width="1.1" stroke-linecap="round"/>'+FACE(16,16.5,4.2),
+ '<g fill="#ff9ccf" stroke="#e569ae" stroke-width="1.2"><circle cx="16" cy="7" r="5"/><circle cx="25" cy="13.5" r="5"/><circle cx="21.5" cy="24" r="5"/><circle cx="10.5" cy="24" r="5"/><circle cx="7" cy="13.5" r="5"/></g><circle cx="16" cy="16.5" r="6.2" fill="#ffd23f" stroke="#e8a900" stroke-width="1.2"/>'+FACE(16,16,2.4),
+ '<path d="M16 2.5c5 3 7 9 6 17.5H10c-1-8.500 1-14.500 6-17.500z" fill="#f4f6fb" stroke="#8a93a8" stroke-width="1.4" stroke-linejoin="round"/><circle cx="16" cy="11.5" r="3.2" fill="#7ec8ff" stroke="#4a9ad6" stroke-width="1.2"/><path d="M10.5 15L6 22l4.5-1.5zM21.5 15l4.5 7-4.5-1.5z" fill="#ff6b6b" stroke="#d94a4a" stroke-width="1.2" stroke-linejoin="round"/><path d="M13 21c0 4 3 7 3 7s3-3 3-7z" fill="#ffb627" stroke="#e58e00" stroke-width="1"/>',
+ '<path d="M16 3a8.500 8.500 0 0 0-5 15.400V22h10v-3.600A8.500 8.500 0 0 0 16 3z" fill="#fff08a" stroke="#e0b800" stroke-width="1.4"/><path d="M12 25h8M13.500 28h5" stroke="#9a8a52" stroke-width="1.6" stroke-linecap="round"/>'+FACE(16,13,3),
+ '<g fill="none" stroke-width="3" stroke-linecap="round"><path d="M4 24a12 12 0 0 1 24 0" stroke="#ff6b6b"/><path d="M8 24a8 8 0 0 1 16 0" stroke="#ffd23f"/><path d="M12 24a4 4 0 0 1 8 0" stroke="#5ec8f2"/></g><circle cx="4.500" cy="25" r="3" fill="#fff" stroke="#bcd4ea" stroke-width="1"/><circle cx="27.500" cy="25" r="3" fill="#fff" stroke="#bcd4ea" stroke-width="1"/>',
+ '<path d="M3 17a13 12 0 0 1 26 0z" fill="#ff6b6b" stroke="#d94a4a" stroke-width="1.4"/><g fill="#fff"><circle cx="10" cy="12" r="2"/><circle cx="18" cy="8.500" r="2.200"/><circle cx="23.500" cy="13.500" r="1.800"/></g><path d="M11 17h10v7a3 3 0 0 1-3 3h-4a3 3 0 0 1-3-3z" fill="#fff3d6" stroke="#c9a870" stroke-width="1.4"/>'+FACE(16,21.5,2.2)
+];
+const sk=(j,c)=>`<svg class="stkr ${c||""}" viewBox="0 0 32 32" aria-hidden="true">${STICKERS[j]}</svg>`;
+const SLEEPY='<svg class="stk stkr" viewBox="0 0 32 32" aria-hidden="true"><path d="M9 25a6 6 0 0 1-.6-11.9A7.5 7.5 0 0 1 23 12.5 6.2 6.2 0 0 1 23.5 25z" fill="#dfe6ff" stroke="#8f9fe0" stroke-width="1.4"/><path d="M11.5 19q1.5 1.6 3 0M17.500 19q1.5 1.6 3 0" fill="none" stroke="#3a2e1d" stroke-width="1.2" stroke-linecap="round"/><path d="M24 3h4l-4 4h4" fill="none" stroke="#8f9fe0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const OWL='<svg class="owl" viewBox="0 0 40 40" aria-hidden="true"><path d="M8 13L9 3l8 6zM32 13L31 3l-8 6z" fill="#b98a5a" stroke="#8a6238" stroke-width="1.4" stroke-linejoin="round"/><ellipse cx="20" cy="24" rx="15" ry="14" fill="#c99d6b" stroke="#8a6238" stroke-width="1.4"/><ellipse cx="20" cy="31" rx="8" ry="6.500" fill="#f4e2c4"/><circle cx="13.500" cy="19.500" r="5.600" fill="#fff" stroke="#8a6238" stroke-width="1.2"/><circle cx="26.500" cy="19.500" r="5.600" fill="#fff" stroke="#8a6238" stroke-width="1.2"/><circle cx="14" cy="20" r="2.600" fill="#3a2e1d"/><circle cx="26" cy="20" r="2.600" fill="#3a2e1d"/><circle cx="14.800" cy="19.200" r=".9" fill="#fff"/><circle cx="26.800" cy="19.200" r=".9" fill="#fff"/><circle cx="8.500" cy="25" r="1.800" fill="#ff8fa3" opacity=".6"/><circle cx="31.500" cy="25" r="1.800" fill="#ff8fa3" opacity=".6"/><path d="M17.500 25l2.500 4 2.500-4z" fill="#ffb627" stroke="#d98e00" stroke-width="1" stroke-linejoin="round"/></svg>';
+const FOOT=["Two hours, then stop. Tomorrow is also a day.","Curiosity counts, even on slow days.","Small pages add up to a big year.","Pip believes in you.","One good question is a fine day's work.","Rest is part of the plan.","You do not have to understand everything today.","Write it down before it floats away.","Be a beginner on purpose.","Stickers are a legitimate study tool."];
+const FLAG='<svg class="flag" viewBox="0 0 12 12" role="img" aria-label="%T%"><title>%T%</title><path d="M1.5 1h1.2v10H1.5zM2.7 1.5h7.3L8 4.2 10 7H2.7z"/></svg>';
+const FUN={"1-1":"New Year's Day","1-4":"World Braille Day","2-11":"Women and Girls in Science Day","3-8":"International Women's Day","3-14":"Pi Day","3-20":"Day of Happiness","3-21":"World Poetry Day","4-22":"Earth Day","4-23":"World Book Day","5-29":"Everest Day","6-5":"World Environment Day","7-20":"Moon landing anniversary","8-12":"International Youth Day","9-8":"International Literacy Day","9-21":"Day of Peace","9-27":"World Tourism Day","10-16":"World Food Day","10-24":"United Nations Day","11-13":"World Kindness Day","11-20":"Universal Children's Day","12-10":"Human Rights Day"};
+const SHORT=["Learn","Watch","Explore","Practice","Connect","Make","Slow day"];
+const FULLWD=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const DAYS=[ // Sunday first. Saturday is Nepal's weekend, so it is the slow day.
+ {k:"Learn the core idea",task:"Read a short section or lesson. Note five key terms and one question.",keep:"glossary and recall notes"},
+ {k:"Watch and annotate",task:"Watch a lecture, documentary segment, or explainer. Record three claims and one thing to verify.",keep:"video notes and claims"},
+ {k:"Explore evidence",task:"Use a map, primary source, dataset, museum object, simulation, or case study. Write what it shows and what it cannot show.",keep:"evidence notes"},
+ {k:"Practice actively",task:"Do an exercise, comparison, experiment, argument map, sketch, or worked example.",keep:"one practice page"},
+ {k:"Connect perspectives",task:"Compare two examples, cultures, theories, or sources. Note one similarity and one difference.",keep:"a comparison table"},
+ {k:"Make something",task:"Make a one-page explainer, short essay, diagram, annotated map, storyboard, or review.",keep:"the thing you made"},
+ {k:"Slow day",task:"",keep:""}
+];
+
+DAYS.forEach((x,j)=>x.s=SHORT[j]);
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const load=(k,f)=>{try{return JSON.parse(localStorage.getItem(k)||"null")??f}catch(e){return f}};
+const save=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const now=new Date(),in27=now.getFullYear()===2027;
+const S={m:in27?now.getMonth():0,d:in27?now.getDate():1,done:load("curiousYear2027Done",{}),fresh:null,sheet:null,opener:null,wipe:false};
+const me=Object.assign({name:"",why:"",start:"15:00",notes:{},proj:{}},load("curiousYear2027Me",{}));
+me.notes=me.notes||{};me.proj=me.proj||{};
+const saveDone=()=>save("curiousYear2027Done",S.done), saveMe=()=>save("curiousYear2027Me",me);
+const key=(m,d)=>`${m+1}-${d}`;
+const dim=m=>new Date(2027,m+1,0).getDate();
+const dow=(m,d)=>new Date(2027,m,d).getDay();
+const monthDone=m=>{let n=0;for(let d=1;d<=dim(m);d++)if(S.done[key(m,d)])n++;return n};
+const totalDone=()=>Object.keys(S.done).filter(k=>S.done[k]).length;
+const longDate=(m,d)=>new Date(2027,m,d).toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});
+function clk(add){const [h,mi]=me.start.split(":").map(Number);const t=h*60+mi+add;let H=Math.floor(t/60)%24;const a=H>=12?"pm":"am";H=H%12||12;return `${H}:${String(t%60).padStart(2,"0")}${a}`}
+
+const plans={};
+function plan(m){if(plans[m])return plans[m];const c=DATA[m],days=[];for(let d=1;d<=dim(m);d++)if(dow(m,d)!==6)days.push(d);
+ const T=c.topics.length,N=days.length,map={};days.forEach((d,k)=>map[d]=Math.min(T-1,Math.floor(k*T/N)));return plans[m]=map}
+function topicFor(m,d){const c=DATA[m],w=Math.min(Math.floor((d-1)/7),c.weeks.length-1),t=dow(m,d),rest=t===6;
+ return{week:c.weeks[w],type:DAYS[t],tp:t,rest,ti:rest?-1:plan(m)[d],topic:rest?"Slow day: look back on the week":c.topics[plan(m)[d]]}}
+
+/* Pip, the fact owl */
+const pip={timer:0,last:""};
+function showPip(o){if(me.pip===false&&!o.force)return;const el=$("pip");$("pipTitle").textContent=o.title||"Pip's fun fact";$("pipText").textContent=o.text;$("pipLabel").textContent=o.label||"";$("pipLabel").hidden=!o.label;$("pipMore").hidden=!!o.noMore;
+ el.hidden=false;el.classList.remove("show");void el.offsetWidth;el.classList.add("show");pip.last=o.text;
+ clearTimeout(pip.timer);pip.timer=setTimeout(function w(){if(el.matches(":hover,:focus-within"))pip.timer=setTimeout(w,5000);else hidePip()},16000)}
+function hidePip(){$("pip").hidden=true;clearTimeout(pip.timer)}
+function randomFact(m,any){if(any)m=Math.floor(Math.random()*12);const f=DATA[m].facts;let ti,n=0;do{ti=Math.floor(Math.random()*f.length)}while(f[ti]===pip.last&&++n<8);return{text:f[ti],label:(any?MONTHS[m]+": ":"")+DATA[m].topics[ti]}}
+function factFor(m,d){const i=topicFor(m,d),fd=FUN[key(m,d)],t=fd?{title:fd+"! Pip's fun fact"}:{};return i.ti>=0?{...t,text:DATA[m].facts[i.ti],label:i.topic}:{...randomFact(m),title:"Pip's slow-day fact"}}
+function celebrate(btn){if(matchMedia("(prefers-reduced-motion:reduce)").matches)return;const r=btn.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,cols=["#f0961e","#ff7aa8","#5ec8f2","#86d9a8","#b05fe8","#ffd23f"];
+ for(let i=0;i<16;i++){const a=Math.random()*Math.PI*2,dist=50+Math.random()*80,e=document.createElement("i");e.className="bit";
+  e.innerHTML=i%3?'<svg viewBox="0 0 24 24"><path d="M12 1.5c.9 6.2 3.4 8.7 10.5 10.5-7.1 1.8-9.6 4.3-10.5 10.5C11.1 16.3 8.6 13.8 1.5 12 8.6 10.2 11.1 7.7 12 1.5z"/></svg>':'<svg viewBox="0 0 24 24"><path d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z"/></svg>';
+  e.style.cssText=`left:${cx}px;top:${cy}px;--dx:${Math.cos(a)*dist}px;--dy:${Math.sin(a)*dist-30}px;--rt:${Math.random()*360}deg;fill:${cols[i%6]}`;document.body.appendChild(e);setTimeout(()=>e.remove(),1000)}}
+function renderTop(){
+ const h=now.getHours(),hi=h<12?"Good morning":h<18?"Good afternoon":"Good evening";
+ const dl=Math.ceil((new Date(2027,0,1)-now)/864e5);
+ const dayN=Math.floor((new Date(now.getFullYear(),now.getMonth(),now.getDate())-new Date(2027,0,1))/864e5)+1;
+ const tail=in27?`Day ${dayN} of 365.`:dl>0?`Day one is in ${dl} days.`:"";
+ $("greet").textContent=`${hi}${me.name?", "+me.name:""}. ${tail}`;
+ $("why").innerHTML=me.why?esc(me.why):'<button class="linkish" id="bWhy" type="button">Write why you are doing this year</button>';
+ const w=$("bWhy");if(w)w.onclick=()=>openSheet("settings");
+ const n=Object.values(me.notes).filter(x=>x&&(x.ex||x.t)).length;
+ $("bNote").textContent=n?`Notebook (${n})`:"Notebook";
+}
+function renderYear(){
+ $("year").innerHTML=MONTHS.map((n,i)=>`<button class="mo${i===S.m?" on":""}" data-m="${i}" style="--c:${ACC[i]}" aria-label="${n}, ${monthDone(i)} of ${dim(i)} days done"${i===S.m?' aria-current="true"':""}>${svg(i)}<span>${n.slice(0,3)}</span><i><b style="width:${monthDone(i)/dim(i)*100}%"></b></i></button>`).join("");
+ const on=document.querySelector(".mo.on");if(on&&$("year").scrollWidth>$("year").clientWidth)on.scrollIntoView({block:"nearest",inline:"center"});
+ document.documentElement.style.setProperty("--mark",ACC[S.m]);
+}
+function renderHead(){
+ const c=DATA[S.m],md=monthDone(S.m),t=totalDone();
+ $("mtitle").innerHTML=STAR+`<span>${MONTHS[S.m]} 2027</span>`+STAR;
+ $("stamp").hidden=md<dim(S.m);
+ $("prevName").textContent=MONTHS[(S.m+11)%12];$("nextName").textContent=MONTHS[(S.m+1)%12];
+ $("mh").innerHTML=`${svg(S.m,"big")}<div><h2 class="subject"><span>${esc(c.subject)}</span></h2><p class="focus">${esc(c.focus)}</p>
+ <p class="weeks">${c.weeks.map((w,i)=>`<span><b>wk ${i+1}</b>${esc(w)}</span>`).join("")}</p>
+ <p class="tally">${md} of ${dim(S.m)} days this month, ${t} of 365 this year.</p></div>`;
+}
+function renderCal(){
+ const m=S.m,first=new Date(2027,m,1).getDay(),n=dim(m);
+ let h=FULLWD.map(x=>`<div class="wk"><span class="wf">${x}</span><span class="ws">${x.slice(0,3)}</span></div>`).join("");
+ for(let i=first;i>0;i--)h+=`<div class="oth" aria-hidden="true">${new Date(2027,m,1-i).getDate()}</div>`;
+ for(let d=1;d<=n;d++){
+  const k=key(m,d),i=topicFor(m,d),dn=!!S.done[k],td=in27&&m===now.getMonth()&&d===now.getDate(),nt=me.notes[k]||{};
+  const started=!dn&&(nt.ex||nt.t),icon=dn?ST.done:started?ST.wip:td?ST.todo:"";
+  const sticker=nt.feel!=null?STK[nt.feel]:i.rest?SLEEPY:"";
+  const own=nt.stk!=null?`<span class="stk2" style="--r:${((d*37)%11)-5}deg">${sk(nt.stk)}</span>`:"";
+  h+=`<button class="day${d===S.d?" sel":""}${dn?" done":""}${i.rest?" slow":""}${td?" today":""}${S.fresh===k?" pop":""}" data-d="${d}" aria-label="${esc(longDate(m,d))}: ${esc(i.topic)}${dn?", done":""}${FUN[k]?", "+esc(FUN[k]):""}"${d===S.d?' aria-current="true"':""}><span class="dh"><span class="n">${d}${FUN[k]?FLAG.replace(/%T%/g,esc(FUN[k])):""}</span>${icon}</span><span class="pill" style="--pc:var(--p${i.tp})">${i.rest?"slow":i.type.s}</span>${i.rest?"":`<span class="t">${esc(i.topic)}</span>`}${sticker}${own}</button>`;
+ }
+ const tail=(7-(first+n)%7)%7;for(let i=1;i<=tail;i++)h+=`<div class="oth" aria-hidden="true">${i}</div>`;
+ $("days").innerHTML=h;S.fresh=null;
+}
+function renderLegend(){
+ $("legend").innerHTML=`<div><h4>Status</h4><ul><li>${ST.done}done</li><li>${ST.wip}started</li><li>${ST.todo}today</li></ul></div>
+ <div><h4>Day type</h4><ul class="types">${DAYS.map((x,j)=>`<li><span class="pill" style="--pc:var(--p${j})">${x.s}</span></li>`).join("")}</ul></div>
+ <div><h4>How it felt</h4><ul><li>${STK[2]}lit up</li><li>${STK[1]}fine</li><li>${STK[0]}slog</li></ul></div>
+ <div><h4>Tint</h4><ul><li><span class="sw" style="background:var(--t-done)"></span>done</li><li><span class="sw" style="background:var(--t-slow)"></span>slow day</li></ul></div>
+ <div><h4>Sticker book</h4><div class="row2">${[0,1,6,8,10,11].map(j=>sk(j,"lg")).join("")}</div><p class="quiet hint">Pick any of 12 on a day's page.</p></div>`;
+}
+function weekLines(m,d){const out=[];for(let i=6;i>=1;i--){const dt=new Date(2027,m,d-i);if(dt.getFullYear()!==2027)continue;const nt=me.notes[key(dt.getMonth(),dt.getDate())];if(nt&&nt.ex)out.push([WD[dt.getDay()],nt.ex])}return out}
+function renderPage(){
+ const m=S.m,d=S.d,k=key(m,d),i=topicFor(m,d),nt=me.notes[k]||{},dn=!!S.done[k];
+ let rows;
+ if(i.rest){const wl=weekLines(m,d);
+  rows=[[0,15,"Look back","Read this week's lines below. Which one is fuzziest?"],[15,60,"Fix the fuzzy one","Go back to a source, learn it properly, then explain it again."],[60,75,"Pause","Water, a stretch, eyes off the screen."],[75,120,"Wander","Read or watch anything from this month's shelf that pulled at you."]];
+  var extra=`<h4 class="h">What you said this week</h4>${wl.length?`<ul class="lines">${wl.map(x=>`<li><b>${x[0]}</b>${esc(x[1])}</li>`).join("")}</ul>`:'<p class="quiet">Nothing written yet. Weekday pages have a line for it.</p>'}`;
+ }else{
+  const first=m===0&&d===1;
+  rows=[[0,10,first?"Warm-up":"Recall",first?"Write what you already know, two questions you hope to answer, and one assumption to test.":"Without your notes, write what you remember from last time."],[10,40,"Read","A section, lesson, or primary source on today's topic."],[40,65,"Watch or listen","A lecture, documentary segment, or podcast."],[65,75,"Pause","Water, a stretch, eyes off the screen."],[75,105,"Main task",i.type.task],[105,120,"Keep","Save "+i.type.keep+"."]];
+  var extra="";
+ }
+ $("page").innerHTML=`<div class="tape" aria-hidden="true"></div>
+ <p class="when">${esc(longDate(m,d))}</p>${FUN[k]?`<p class="fun">${FLAG.replace(/%T%/g,esc(FUN[k]))}${esc(FUN[k])}</p>`:""}<h3 class="topic">${esc(i.topic)}</h3>
+ <p class="kind"><span class="pill" style="--pc:var(--p${i.tp})">${esc(i.type.k)}</span><span>${esc(i.week)}</span></p>
+ <p class="fact">${OWL}<span><b>Pip says</b>${esc(i.ti>=0?DATA[m].facts[i.ti]:"Slow days are for looking back. Pip likes to nap on Saturdays.")}</span></p>
+ <h4 class="h">Your two hours</h4>
+ <ol class="flow">${rows.map(r=>`<li><time>${clk(r[0])}</time><div><strong>${r[2]}</strong><span>${esc(r[3])}</span></div></li>`).join("")}</ol>
+ ${extra}
+ <label class="fld" for="ex">One thing I can now explain</label><input class="line" id="ex" type="text" placeholder="One sentence" value="${esc(nt.ex)}">
+ <label class="fld" for="nt">Notes and questions</label><textarea class="ruled" id="nt" placeholder="Claims to check, new words, sparks">${esc(nt.t)}</textarea>
+ <div class="fld" id="fl">How did it go?</div>
+ <div class="feel" role="group" aria-labelledby="fl">${["slog","fine","lit up"].map((x,j)=>`<button type="button" data-f="${j}" class="${nt.feel===j?"on":""}" aria-pressed="${nt.feel===j}">${x}</button>`).join("")}</div>
+ <div class="fld" id="stl">Stick something on this day</div>
+ <div class="tray" role="group" aria-labelledby="stl">${STICKERS.map((_,j)=>`<button type="button" data-s="${j}" aria-pressed="${nt.stk===j}" aria-label="${SNAMES[j]} sticker">${sk(j)}</button>`).join("")}</div>
+ <button class="donebtn" id="done" type="button" aria-pressed="${dn}">${dn?"Done. See you tomorrow.":"I showed up today"}</button>`;
+ const sv=()=>{me.notes[k]={...me.notes[k],ex:$("ex").value,t:$("nt").value};saveMe();renderTop()};
+ $("ex").oninput=$("nt").oninput=sv;
+ document.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{const v=+b.dataset.f,same=(me.notes[k]||{}).feel===v;me.notes[k]={...me.notes[k],feel:same?undefined:v};saveMe();
+  document.querySelectorAll("[data-f]").forEach(x=>{const on=!same&&x===b;x.classList.toggle("on",on);x.setAttribute("aria-pressed",on)})});
+ document.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{const v=+b.dataset.s,same=(me.notes[k]||{}).stk===v;me.notes[k]={...me.notes[k],stk:same?undefined:v};saveMe();
+  document.querySelectorAll("[data-s]").forEach(x=>x.setAttribute("aria-pressed",!same&&x===b));renderCal()});
+ $("done").onclick=()=>{const on=!S.done[k];if(on){S.done[k]=true;S.fresh=k}else delete S.done[k];saveDone();
+  const b=$("done");b.setAttribute("aria-pressed",on);b.textContent=on?"Done. See you tomorrow.":"I showed up today";
+  renderYear();renderHead();renderCal();
+  if(on){celebrate(b);const n=totalDone(),md=monthDone(S.m);let msg="";
+   if(md===dim(S.m))msg=`${MONTHS[S.m]} is finished. Time to stick a sticker on every page.`;else if(n===1)msg="First day done. The whole year starts with one.";else if(n%10===0)msg=`${n} days done. Pip is doing a tiny dance.`;
+   if(msg)showPip({title:"Pip is proud",text:msg,noMore:true})}};
+}
+function renderShelf(){
+ const c=DATA[S.m];
+ $("shelf").innerHTML=`<section class="proj"><h3>Month-end piece</h3><p>${esc(c.project)}</p><button class="tick" id="pj" type="button" aria-pressed="${!!me.proj[S.m]}"><i></i>${me.proj[S.m]?"Finished. Well done.":"I finished it"}</button></section>
+ <section><h3>On the shelf</h3>${c.books.map(b=>`<div class="book"><b>${esc(b[0])}</b><small>${esc(b[1])}</small><p>${esc(b[2])}</p></div>`).join("")}</section>
+ <section><h3>Free places to learn</h3><div class="links">${c.resources.map(r=>`<a href="${r[1]}" target="_blank" rel="noopener">${esc(r[0])}</a>`).join("")}</div></section>`;
+ $("pj").onclick=()=>{me.proj[S.m]=!me.proj[S.m];saveMe();renderShelf()};
+}
+function renderAll(){renderTop();renderYear();renderHead();renderCal();renderPage();renderShelf()}
+function go(m,d,scroll){S.m=m;S.d=d||1;renderAll();showPip(factFor(S.m,S.d));if(scroll&&innerWidth<1000)$("page").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth",block:"start"})}
+
+/* sheets */
+function nbEntries(){return Object.keys(me.notes).filter(k=>me.notes[k]&&(me.notes[k].ex||me.notes[k].t)).map(k=>{const [m,d]=k.split("-").map(Number);return{m:m-1,d,n:me.notes[k]}}).sort((a,b)=>a.m-b.m||a.d-b.d)}
+function nbText(){return nbEntries().map(e=>`${longDate(e.m,e.d)} 2027, ${topicFor(e.m,e.d).topic}\n${e.n.ex?"I can explain: "+e.n.ex+"\n":""}${e.n.t?"Notes: "+e.n.t+"\n":""}`).join("\n")}
+function nbHTML(){const es=nbEntries();let last=-1,h=`<button class="linkish x" id="sx" type="button">Close</button><h2>Notebook</h2><p class="quiet" style="margin-top:6px">Every line you wrote under "One thing I can now explain", in order.</p>`;
+ if(!es.length)return h+`<p style="margin-top:22px">Nothing here yet. Write one sentence on any day and it lands on this page.</p>`;
+ es.forEach(e=>{if(e.m!==last){h+=`<h3>${MONTHS[e.m]}: ${esc(DATA[e.m].subject)}</h3>`;last=e.m}
+  h+=`<article class="entry"><p class="when">${esc(longDate(e.m,e.d))}</p><b>${esc(topicFor(e.m,e.d).topic)}</b>${e.n.ex?`<p>${esc(e.n.ex)}</p>`:""}${e.n.t?`<p class="note">${esc(e.n.t)}</p>`:""}</article>`});
+ return h+`<div class="row"><button class="linkish" id="copy" type="button">Copy everything as text</button><span class="quiet" id="cmsg" role="status"></span></div><div id="cbox"></div>`}
+function setHTML(){return `<button class="linkish x" id="sx" type="button">Close</button><h2>Settings</h2><p class="quiet" style="margin-top:6px">Saved in this browser only.</p>
+ <label class="fld" for="sn">What should the page call you?</label><input class="line" id="sn" type="text" value="${esc(me.name)}">
+ <label class="fld" for="sw">Why this year</label><input class="line" id="sw" type="text" placeholder="Because I want to…" value="${esc(me.why)}">
+ <label class="fld" for="ss">Afternoon session starts at</label><input class="line" id="ss" type="time" value="${esc(me.start)}">
+ <div class="row"><button class="tick" id="tPip" type="button" aria-pressed="${me.pip!==false}"><i></i>Let Pip pop up with a fun fact</button></div>
+ <h3>Start over</h3><p class="quiet" style="margin-top:6px">Clears every done day, note, and finished project on this device.</p>
+ <div class="row"><button class="linkish" id="wipe" type="button">Clear everything</button><button class="linkish" id="nowipe" type="button" hidden>Keep it</button></div>`}
+function openSheet(kind){S.sheet=kind;S.opener=document.activeElement;S.wipe=false;$("sheet").hidden=false;
+ $("drawer").setAttribute("aria-label",kind==="notebook"?"Notebook":"Settings");
+ $("drawer").innerHTML=kind==="notebook"?nbHTML():setHTML();
+ $("sx").onclick=closeSheet;$("sx").focus();
+ if(kind==="notebook"){const c=$("copy");if(c)c.onclick=()=>{const t=nbText();
+  const fb=()=>{$("cbox").innerHTML='<textarea class="copybox" id="cb" readonly></textarea>';$("cb").value=t;$("cb").select();$("cmsg").textContent="Press Ctrl or Cmd+C to copy."};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(()=>{$("cmsg").textContent="Copied."},fb);else fb()}}
+ else{$("tPip").onclick=()=>{me.pip=me.pip===false;saveMe();$("tPip").setAttribute("aria-pressed",me.pip);if(!me.pip)hidePip()};
+  $("sn").oninput=e=>{me.name=e.target.value.trim();saveMe();renderTop()};
+  $("sw").oninput=e=>{me.why=e.target.value.trim();saveMe();renderTop()};
+  $("ss").oninput=e=>{me.start=e.target.value||"15:00";saveMe();renderPage()};
+  $("wipe").onclick=()=>{if(!S.wipe){S.wipe=true;$("wipe").textContent="Yes, clear everything";$("nowipe").hidden=false;return}
+   S.done={};me.notes={};me.proj={};saveDone();saveMe();closeSheet();renderAll()};
+  $("nowipe").onclick=()=>{S.wipe=false;$("wipe").textContent="Clear everything";$("nowipe").hidden=true}}}
+function closeSheet(){S.sheet=null;$("sheet").hidden=true;if(S.opener&&S.opener.focus)S.opener.focus()}
+
+/* wiring */
+$("year").onclick=e=>{const b=e.target.closest("[data-m]");if(b)go(+b.dataset.m,1)};
+$("days").onclick=e=>{const b=e.target.closest("[data-d]");if(!b)return;S.d=+b.dataset.d;renderCal();renderPage();showPip(factFor(S.m,S.d));if(innerWidth<1000)$("page").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth",block:"start"})};
+$("bToday").onclick=()=>in27?go(now.getMonth(),now.getDate()):go(0,1);
+$("bNote").onclick=()=>openSheet("notebook");
+$("bSet").onclick=()=>openSheet("settings");
+$("scrim").onclick=closeSheet;
+$("find").addEventListener("input",e=>{const q=e.target.value.toLowerCase().trim();if(q.length<2)return;
+ for(let m=0;m<12;m++)for(let d=1;d<=dim(m);d++){const t=topicFor(m,d);if(!t.rest&&t.topic.toLowerCase().includes(q)){go(m,d);return}}});
+document.addEventListener("keydown",e=>{
+ if(e.key==="Escape"&&S.sheet){closeSheet();return}
+ if(e.key==="Escape"&&!$("pip").hidden){hidePip();return}
+ if(S.sheet||/INPUT|TEXTAREA/.test(e.target.tagName))return;
+ if(e.key==="ArrowRight")go((S.m+1)%12,1);if(e.key==="ArrowLeft")go((S.m+11)%12,1)});
+$("prevM").onclick=()=>go((S.m+11)%12,1);$("nextM").onclick=()=>go((S.m+1)%12,1);
+$("pipOwl").innerHTML=OWL;
+$("pipX").onclick=hidePip;
+$("pipMore").onclick=()=>showPip({...randomFact(S.m),title:"Another one from Pip",force:true});
+$("bFun").onclick=()=>showPip({...randomFact(0,true),title:"Surprise from Pip",force:true});
+document.querySelector(".foot").textContent=FOOT[Math.floor(Math.random()*FOOT.length)];
+renderLegend();renderAll();
+setTimeout(()=>showPip(factFor(S.m,S.d)),700);
+</script>
+
+</body></html>
